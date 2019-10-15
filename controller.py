@@ -1,6 +1,6 @@
 import json
 import os
-from shutil import copyfile
+from shutil import copyfile, rmtree
 from typing import List, Dict
 
 filename = "chapter2.txt"
@@ -124,7 +124,17 @@ class ShardHandler(object):
         """Loads the data from all shards, removes the extra 'database' file,
         and writes the new number of shards to disk.
         """
-        pass
+        self.mapping = self.load_map()
+        data = self.load_data_from_shards()
+        keys = [int(x) for x in list(self.mapping.keys())]
+        keys.sort()
+        new_shard_num = str(max(keys))
+        rmtree("./data")
+        self.mapping = {}
+        try:
+            self.build_shards(int(new_shard_num), data)
+        except ZeroDivisionError:
+            print(new_shard_num)
 
     def add_replication(self) -> None:
         """Add a level of replication so that each shard has a backup. Label
@@ -194,4 +204,7 @@ print(s.mapping.keys())
 
 s.add_shard()
 
+print(s.mapping.keys())
+
+s.remove_shard()
 print(s.mapping.keys())
